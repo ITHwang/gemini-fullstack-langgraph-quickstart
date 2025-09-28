@@ -1,29 +1,28 @@
-import os
+import os  # noqa: D100
 
-from agent.tools_and_schemas import SearchQueryList, Reflection
 from dotenv import load_dotenv
-from langchain_core.messages import AIMessage
-from langgraph.types import Send
-from langgraph.graph import StateGraph
-from langgraph.graph import START, END
-from langchain_core.runnables import RunnableConfig
 from google.genai import Client
+from langchain_core.messages import AIMessage
+from langchain_core.runnables import RunnableConfig
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.graph import END, START, StateGraph
+from langgraph.types import Send
 
+from agent.configuration import Configuration
+from agent.prompts import (
+    answer_instructions,
+    get_current_date,
+    query_writer_instructions,
+    reflection_instructions,
+    web_searcher_instructions,
+)
 from agent.state import (
     OverallState,
     QueryGenerationState,
     ReflectionState,
     WebSearchState,
 )
-from agent.configuration import Configuration
-from agent.prompts import (
-    get_current_date,
-    query_writer_instructions,
-    web_searcher_instructions,
-    reflection_instructions,
-    answer_instructions,
-)
-from langchain_google_genai import ChatGoogleGenerativeAI
+from agent.tools_and_schemas import Reflection, SearchQueryList
 from agent.utils import (
     get_citations,
     get_research_topic,
@@ -266,6 +265,8 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
 
 
 # Create our Agent Graph
+# TODO: config_schema -> context_schema
+# TODO: RunnableConfig -> Runtime[ContextT]
 builder = StateGraph(OverallState, config_schema=Configuration)
 
 # Define the nodes we will cycle between
